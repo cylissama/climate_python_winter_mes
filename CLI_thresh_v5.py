@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import scipy.io
+import matlab.engine
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
 # Define a helper function to replicate rlowess smoothing
@@ -92,6 +93,7 @@ def main():
     #dirin1 = '/Users/erappin/Documents/Mesonet/ClimateIndices/cliSITES/'
     dirin1 = '/Volumes/Mesonet/cliSITES/'
     
+    eng = matlab.engine.start_matlab()
     # Loop over each station
     for i in range(nsM):
         station_id = sites[i]
@@ -105,7 +107,14 @@ def main():
             year_str = str(1980 + j)
             mat_file_path = os.path.join(dirin, f"{year_str}_{station_id}_hourly.mat")
 
-            csv_file_path = convert_mat_to_csv(mat_file_path)
+            # convert .mat to .csv // for use in this code
+
+            # Add the folder containing convert_mat_to_csv.m to MATLAB path
+            eng.addpath(r'/Volumes/Mesonet/winter_break', nargout=0)
+
+            # Call the function and capture the return value
+            csv_file_path = eng.convert_mat_to_csv(mat_file_path, nargout=1)
+        
             if csv_file_path is None:
                 continue
 
@@ -317,6 +326,9 @@ def main():
         
         savemat(fileout, mdict)
         print(f"Saved results to {fileout}")
+    
+    # Shut down MATLAB
+    eng.quit()
 
 if __name__ == '__main__':
     main()
