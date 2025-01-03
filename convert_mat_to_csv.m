@@ -1,3 +1,6 @@
+% Converts .mat timestables into csv files 
+% This was created due to python not being able to read .mat files with timestables correctly
+
 function csv_file_out = convert_mat_to_csv(mat_file_path)
     % CONVERT_MAT_TO_CSV Convert a .mat file containing TT_hourly to a .csv.
     %

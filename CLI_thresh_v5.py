@@ -1,3 +1,6 @@
+# Python port of the .m file CLI_thresh_v5.m
+# Cy Dixon, 2025-01-06
+
 import os
 import numpy as np
 import pandas as pd
