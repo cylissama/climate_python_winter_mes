@@ -103,29 +103,25 @@ def main():
         # Loop over 30 years: 1980..1980+nc-1
         for j in range(nc):
             year_str = str(1980 + j)
-            filein_year = os.path.join(dirin, f"{year_str}_{station_id}_hourly.mat")
+            mat_file_path = os.path.join(dirin, f"{year_str}_{station_id}_hourly.mat")
 
-            # Try loading the MAT file
+            csv_file_path = convert_mat_to_csv(mat_file_path)
+            if csv_file_path is None:
+                continue
+
+            # Try loading the CSV file
             try:
-                matdata = scipy.io.loadmat(filein_year)
-                for key in matdata.keys():
-                    print(key)
+                df_hourly_temp = pd.read_csv(csv_file_path, header=0)
 
-            except FileNotFoundError:
-                #print(f"Warning: File not found: {filein_year}. Skipping this year.")
+                if TT_hourlyF is None:
+                    TT_hourlyF = df_hourly_temp.value
+                else:
+                    TT_hourlyF = np.concatenate([TT_hourlyF, df_hourly_temp.value], axis=0)
+
+            except Exception as e:
+                print(f"Error loading {csv_file_path}: {e}")
                 continue
             
-            if "TT_hourly" not in matdata:
-                print(f"Warning: 'TT_hourly' variable missing in {filein_year}. Skipping.")
-                continue
-            
-            TT_hourly_j = matdata['TT_hourly']  # NxM array or structured data
-            if TT_hourlyF is None:
-                TT_hourlyF = TT_hourly_j
-            else:
-                TT_hourlyF = np.concatenate([TT_hourlyF, TT_hourly_j], axis=0)
-        
-        # If no data was loaded at all (all files missing?), skip this station
         if TT_hourlyF is None or TT_hourlyF.size == 0:
             print(f"No data loaded for station {station_id}. Skipping station.")
             continue
