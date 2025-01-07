@@ -41,7 +41,6 @@ function csv_file_out = convert_mat_to_csv(mat_file_path)
         % Check if 'TT_hourly' exists
         if ~isfield(data, 'TT_hourly')
             fprintf('Warning: ''TT_hourly'' variable missing in %s. Skipping.\n', mat_file_path);
-            return;
         end
 
         % Extract the TT_hourly data
