@@ -18,7 +18,6 @@ Created: 2025-01-06
 import os
 import numpy as np
 import pandas as pd
-import scipy.io
 from scipy.io import loadmat, savemat
 from datetime import datetime
 from statsmodels.nonparametric.smoothers_lowess import lowess
@@ -86,39 +85,66 @@ def get_data_annual(TT, iy, TIME):
 
 def main():
     site = 'BMTN'
-    fileMES1 = 'BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat'
-
     # Load Mesonet, Climate Data and Thresholds
 
     # set paths to data files
-    dircli1 = '/Volumes/Mesonet/winter_break/CCdata/'
-    dircli = os.path.join(dircli1, site)
-    filethresh = os.path.join(dircli, f"{site}_CLIthresh_daily.mat")
-    filemes = os.path.join(dircli1, fileMES1)
+    dataDir = '/Volumes/Mesonet/winter_break/CCdata/'
+    dailyFilePath = 'BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat'
+    dataSiteDir = os.path.join(dataDir, site)
+    filethresh = os.path.join(dataSiteDir, f"{site}_CLIthresh_daily.mat")
+    filemes = os.path.join(dataDir, dailyFilePath)
+    
+    # matfile = loadmat(filethresh)
+    # count = 0
+    # print("\nVariables in threshold file:")
+    # print("------------------------")
+    # for key in matfile.keys():
+    #     if not key.startswith('__'):  # Skip MATLAB metadata keys
+    #         count += 1
+    #         print(f"Variable: {key}")
+    #         print(f"Type: {type(matfile[key])}")
+    #         print(f"Size: {matfile[key].shape}")
+    #         print("------------------------")
+    # print(f"\nTotal variables: {count}")
 
     # Start MATLAB engine
     eng = matlab.engine.start_matlab()
 
     # Convert .mat file to .csv using MATLAB function
+    # We need to get both the daily data from each file
     eng.addpath(r'/Volumes/Mesonet/winter_break/utils', nargout=0)
-    csv_file_path = eng.convert_mat_to_csv(filemes, nargout=1)
+    # thresh_csv = eng.convert_mat_to_csv(filemes, nargout=1)
+    thresh_csv = eng.convert_mat_to_csv(filethresh, "daily")
+    mes_csv = eng.convert_mat_to_csv(filemes, "dailyMES")
 
-    if not csv_file_path:
-        print(f"Failed to convert {filemes} to CSV.")
+    if not thresh_csv:
+        print(f"Failed to convert to CSV.")
         return
 
-    # Load the CSV file into a pandas DataFrame
+    # Load both CSV files into pandas DataFrames
     try:
-        data_mes = pd.read_csv(csv_file_path)
+        thresh_df = pd.read_csv(thresh_csv)
+        mes_df = pd.read_csv(mes_csv)
     except Exception as e:
-        print(f"Error loading {csv_file_path}: {e}")
+        print(f"Error loading CSV files: {e}")
         return
 
-    # Stop MATLAB engine
-    eng.quit()
-
-    TT_dailyMES = data_mes
-    TIME_full = pd.to_datetime(TT_dailyMES['TIMESTAMP'])
+    # Merge DataFrames on TIMESTAMP column
+    combined_df = pd.merge(thresh_df, mes_df, 
+                          on='TIMESTAMP', 
+                          how='outer',
+                          suffixes=('_thresh', '_mes'))
+    
+    # Sort by timestamp
+    combined_df = combined_df.sort_values('TIMESTAMP')
+    
+    # Convert TIMESTAMP to datetime
+    combined_df['TIMESTAMP'] = pd.to_datetime(combined_df['TIMESTAMP'])
+    
+    # Use combined DataFrame for further processing
+    TT_dailyMES = combined_df
+    TIME_full = TT_dailyMES['TIMESTAMP']
+    #TIME_full = pd.to_datetime(TT_dailyMES['TIMESTAMP'])
     sTIME_full = TIME_full.iloc[0]
     eTIME_full = TIME_full.iloc[-1]
     YEAR_full = np.unique(TIME_full.dt.year)

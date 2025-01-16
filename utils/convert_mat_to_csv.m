@@ -1,72 +1,83 @@
-% Converts .mat timestables into csv files 
-% This was created due to python not being able to read .mat files with timestables correctly
+% filepath: /Volumes/Mesonet/winter_break/utils/convert_mat_to_csv.m
 
-function csv_file_out = convert_mat_to_csv(mat_file_path)
-    % CONVERT_MAT_TO_CSV Convert a .mat file containing TT_hourly to a .csv.
+function csv_file_out = convert_mat_to_csv(mat_file_path, data_type)
+    % CONVERT_MAT_TO_CSV Convert a .mat file containing time series data to a .csv.
     %
-    %   csv_file_out = convert_mat_to_csv(MAT_FILE_PATH) 
-    %   reads TT_hourly from the .mat file MAT_FILE_PATH and writes it as a .csv
-    %   file into the 'output_data' folder under the same base filename. 
-    %   The function returns the file path of the created CSV. If no CSV was 
-    %   created (e.g., error or missing TT_hourly), it returns ''.
+    %   csv_file_out = convert_mat_to_csv(MAT_FILE_PATH, DATA_TYPE) 
+    %   reads data from the .mat file MAT_FILE_PATH and writes it as a .csv
+    %   file. DATA_TYPE should be either 'hourly' or 'daily' to specify which
+    %   type of data to convert (TT_hourly or TT_daily).
     %
     %   Parameters:
-    %       mat_file_path (char/string): Path to the .mat file.
+    %       mat_file_path (char/string): Path to the .mat file
+    %       data_type (char/string): Either 'hourly' or 'daily'
     %
     %   Returns:
-    %       csv_file_out (char/string): Path to the saved .csv file or '' on error.
-    %
-    % Example:
-    %   csv_path = convert_mat_to_csv('/Volumes/Mesonet/cliSITES/DRFN/1980_DRFN_hourly.mat');
-    %   if ~isempty(csv_path)
-    %       fprintf('CSV saved at %s\n', csv_path);
-    %   end
+    %       csv_file_out (char/string): Path to the saved .csv file or '' on error
 
     % Default return value
     csv_file_out = '';
-
+    
     % Choose output folder for CSV
     outputfolder = 'output_data/';
+    
+    % Validate data_type parameter
+    if ~strcmp(data_type, 'hourly') && ~strcmp(data_type, 'daily') && ~strcmp(data_type, 'dailyMES')
+        error('data_type must be either ''hourly'' or ''daily''');
+    end
+    
+    disp(['Processing file: ' mat_file_path])
+    disp(['Data type: ' data_type])
 
-    disp(mat_file_path)
-
-    % Construct the output CSV path with the same base filename
+    % Construct the output CSV path
     [~, name, ~] = fileparts(mat_file_path);
     csv_file_path = fullfile(outputfolder, [name, '.csv']);
 
     try
         % Load the .mat file
         data = load(mat_file_path);
-
-        % Check if 'TT_hourly' exists
-        if ~isfield(data, 'TT_hourly')
-            fprintf('Warning: ''TT_hourly'' variable missing in %s. Skipping.\n', mat_file_path);
+        
+        % Check for appropriate variable based on data_type
+        if strcmp(data_type, 'hourly')
+            var_name = 'TT_hourly';
+        elseif strcmp(data_type, 'daily')
+            var_name = 'TT_daily';
+        elseif strcmp(data_type, 'dailyMES')
+            var_name = 'TT_dailyMES';
+        else
+            error('Invalid data_type: %s', data_type);
+        end
+        
+        if ~isfield(data, var_name)
+            fprintf('Warning: ''%s'' variable missing in %s. Skipping.\n', var_name, mat_file_path);
+            return;
         end
 
-        % Extract the TT_hourly data
-        TT_hourly = data.TT_hourly;
+        % Extract the data
+        TT_data = data.(var_name);
 
-        % If TT_hourly is a timetable, writetimetable works directly.
-        % Otherwise, convert it (e.g. struct/table -> timetable).
-        %
-        % For example, if TT_hourly is a struct:
-        %   df_hourly = struct2table(TT_hourly);
-        %   TT_hourly = table2timetable(df_hourly, 'RowTimes', yourDatetimeVar);
+        % Convert the data based on its type
+        if istimetable(TT_data)
+            % If it's already a timetable, write directly
+            writetimetable(TT_data, csv_file_path);
 
-        % Write timetable to CSV file
-        writetimetable(TT_hourly, csv_file_path);
-        fprintf('Converted %s to %s\n', mat_file_path, csv_file_path);
+        elseif isstruct(TT_data)
+            % If it's a struct, convert to table first
+            data_table = struct2table(TT_data);
+            writetable(data_table, csv_file_path);
+        else
+            % For other types, try direct conversion
+            writematrix(TT_data, csv_file_path);
+        end
 
-        % On success, set the function's return value
+        fprintf('Successfully Converted %s to %s!\n', mat_file_path, csv_file_path);
         csv_file_out = csv_file_path;
 
     catch ME
-        % If the MAT file could not be read
         if strcmp(ME.identifier, 'MATLAB:load:couldNotReadFile')
             fprintf('File not found: %s. Skipping.\n', mat_file_path);
         else
             fprintf('An error occurred while converting %s: %s\n', mat_file_path, ME.message);
         end
-        % csv_file_out remains ''
     end
 end
