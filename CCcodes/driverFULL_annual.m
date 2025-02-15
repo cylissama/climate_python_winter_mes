@@ -1,12 +1,12 @@
 clear
 format long
 
-% site='HCKM';
+site='BMNT';
 
-fileMES1='01-Nov-2009_31-Jul-2023_HCKM_daily.mat';
+fileMES1='/Volumes/Mesonet/winter_break/CCdata/BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat';
 
 %load Mesonet, Climate Data and Thresholds
-dircli1='/Users/erappin/Documents/Mesonet/ClimateIndices/cliSITES/';
+dircli1='/Volumes/Mesonet/winter_break/CCdata/';
 dircli=strcat(strcat(dircli1,site,'/'));
 filethresh=strcat(dircli,strcat(site,"_CLIthresh_daily"));
 load(filethresh);
@@ -132,7 +132,6 @@ TT_annual=[TT_TAIR_an TT_DWPT_an TTx_TAIR_an TTn_TAIR_an ...
 
 end
 
-return
 %%%%%%%%%%%%%%%%%%%%%%%%INDEX CALCULATION%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%COLD INDICES%%%%%%%%%%%%%%%%%%%%%%%%%
 

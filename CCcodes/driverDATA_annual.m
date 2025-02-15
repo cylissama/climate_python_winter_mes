@@ -1,13 +1,15 @@
 clear
 format long
 
-site='HCKM';
-fileMES1='01-Nov-2009_01-Aug-2023_HCKM_daily.mat';
-dateS=datetime(2010,01,01);
+site='BMTN';
+fileMES1='01-Mar-2014_01-Aug-2023_BMTN_daily';
+dateS=datetime(2015,01,01);
 dateE=datetime(2022,12,31);
+%dateS=datetime(2010,01,01);
+%dateE=datetime(2022,12,31);
 
 %load Mesonet, Climate Data and Thresholds
-dircli1='/Users/erappin/Documents/Mesonet/ClimateIndices/sitesTEST_CCindices/';
+dircli1='/Volumes/Mesonet/winter_break/CCdata/';
 dircli=strcat(strcat(dircli1,site,'/'));
 filethresh=strcat(dircli,strcat(site,"_CLIthresh_daily"));
 load(filethresh);

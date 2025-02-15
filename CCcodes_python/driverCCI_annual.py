@@ -107,18 +107,35 @@ def main():
     #         print("------------------------")
     # print(f"\nTotal variables: {count}")
 
-    # Start MATLAB engine
+  # Start MATLAB engine
     eng = matlab.engine.start_matlab()
-
-    # Convert .mat file to .csv using MATLAB function
-    # We need to get both the daily data from each file
     eng.addpath(r'/Volumes/Mesonet/winter_break/utils', nargout=0)
-    # thresh_csv = eng.convert_mat_to_csv(filemes, nargout=1)
-    thresh_csv = eng.convert_mat_to_csv(filethresh, "daily")
-    mes_csv = eng.convert_mat_to_csv(filemes, "dailyMES")
 
-    if not thresh_csv:
-        print(f"Failed to convert to CSV.")
+    # Create output directory if it doesn't exist
+    output_dir = 'output_data'
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Check and convert threshold file
+    thresh_csv = os.path.join(output_dir, os.path.basename(filethresh).replace('.mat', '.csv'))
+    if not os.path.exists(thresh_csv):
+        print(f"Converting threshold file to CSV...")
+        thresh_csv = eng.convert_mat_to_csv(filethresh, "daily")
+    else:
+        print(f"Using existing threshold CSV: {thresh_csv}")
+
+    # Check and convert measurement file
+    mes_csv = os.path.join(output_dir, os.path.basename(filemes).replace('.mat', '.csv'))
+    if not os.path.exists(mes_csv):
+        print(f"Converting measurement file to CSV...")
+        mes_csv = eng.convert_mat_to_csv(filemes, "dailyMES")
+    else:
+        print(f"Using existing measurement CSV: {mes_csv}")
+
+    # Stop MATLAB engine
+    eng.quit()
+
+    if not thresh_csv or not mes_csv:
+        print(f"Failed to convert files to CSV.")
         return
 
     # Load both CSV files into pandas DataFrames
@@ -128,23 +145,8 @@ def main():
     except Exception as e:
         print(f"Error loading CSV files: {e}")
         return
-
-    # Merge DataFrames on TIMESTAMP column
-    combined_df = pd.merge(thresh_df, mes_df, 
-                          on='TIMESTAMP', 
-                          how='outer',
-                          suffixes=('_thresh', '_mes'))
     
-    # Sort by timestamp
-    combined_df = combined_df.sort_values('TIMESTAMP')
-    
-    # Convert TIMESTAMP to datetime
-    combined_df['TIMESTAMP'] = pd.to_datetime(combined_df['TIMESTAMP'])
-    
-    # Use combined DataFrame for further processing
-    TT_dailyMES = combined_df
-    TIME_full = TT_dailyMES['TIMESTAMP']
-    #TIME_full = pd.to_datetime(TT_dailyMES['TIMESTAMP'])
+    TIME_full = pd.to_datetime(mes_df['TimestampCollected'])
     sTIME_full = TIME_full.iloc[0]
     eTIME_full = TIME_full.iloc[-1]
     YEAR_full = np.unique(TIME_full.dt.year)
@@ -158,8 +160,8 @@ def main():
     if dateE <= eTIME_full:
         ieD = TIME_full[TIME_full == dateE].index[0]
 
-    TT = TT_dailyMES.iloc[isD:ieD]
-    TIME = pd.to_datetime(TT['TIMESTAMP'])
+    TT = mes_df.iloc[isD:ieD]
+    TIME = pd.to_datetime(TT['TimestampCollected'])
 
     VAR = ["TAIR_month", "DWPT_month", "TAIRx_month", "TAIRn_month", "PRCP_month", "RELH_month",
            "PRES_month", "SM02_month", "WDIR_month", "WSPD_month", "WSMX_month", "SRAD_month"]
@@ -184,9 +186,9 @@ def main():
             TTnew = get_data_annual(TT, iy, TIME)
             TTcal = TIME
             TTyears = TTcal.dt.year
-            TTindYears = np.unique(TTyears, return_index=True)[1]
+            TTindYears = np.unique(TTyears)
             Vartt = TTnew.iloc[:, j]
-            TTy = [TTnew.iloc[TTyears == y, :] for y in TTindYears]
+            TTy = [TTnew[TTyears == y] for y in TTindYears]
             Ad = TTy
             Ay = TTindYears
             Md[i][j] = Ad
@@ -206,10 +208,15 @@ def main():
     output_dir = 'output_data'
     os.makedirs(output_dir, exist_ok=True)
 
-    # Save the results to a .mat file
-    fileout = os.path.join(output_dir, f"{site}_DATAinput_annual.mat")
-    savemat(fileout, {'myStructA': myStructA})
-    print(f"Saved results to {fileout}")
+    fileout_csv = os.path.join(output_dir, f"{site}_DATA_annual_out.csv")
+
+    df = pd.DataFrame({
+        "year": myStructA["year"],
+        "data": myStructA["data"],
+    })
+
+    df.to_csv(fileout_csv, index=False)
+    print(f"Saved results to {fileout_csv}")
 
 if __name__ == '__main__':
     main()

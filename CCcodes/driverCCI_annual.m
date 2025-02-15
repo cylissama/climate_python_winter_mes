@@ -1,15 +1,13 @@
-clear
-format long
 
-site='FARM';
+site='BMTN';
 %load properly formatted input data
-dircli1='/Users/erappin/Documents/Mesonet/ClimateIndices/sitesTEST_CCindices/';
+dircli1='/Volumes/Mesonet/winter_break/CCdata/';
 dircli=strcat(strcat(dircli1,site,'/'));
 filethresh=strcat(dircli,strcat(site,"_CLIthresh_daily"));
 load(filethresh);
-return
-fileannual=strcat(dircli,strcat(site,"_DATAinput_annual"));
-load(fileannual);
+
+% fileannual=strcat(dircli,strcat(site,"_DATAinput_annual"));
+% load(fileannual);
 
 ny=numel(DATAannual.year);
 nv=numel(DATAannual.var);
@@ -50,7 +48,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_GD4'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_GD4'));
 print(hfig,fileout,'-dpng','-r600');
 
 %%%%%Growing Season Length (GSL)
@@ -101,7 +99,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('(Days)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_FD'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_FD'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Consecutive Frost Days: CFD
@@ -128,7 +126,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('(Days)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_CFD'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_CFD'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Heating Degree Days: HDD
@@ -155,7 +153,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_HDD'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_HDD'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Ice Days: ID
@@ -182,7 +180,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('(Days)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_ID'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_ID'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Cold Spell Duration Index: CSDI
@@ -216,7 +214,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TXn'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TXn'));
 print(hfig,fileout,'-dpng','-r600');
 
 
@@ -243,7 +241,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TNn'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TNn'));
 print(hfig,fileout,'-dpng','-r600');
 
 %%%%%%%%%%%%%%%%%%%%%%COMPUND INDICES%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -271,7 +269,12 @@ for j=1:ny
     tmax=DATAall{j,1}{:,2};
     tmin=DATAall{j,1}{:,3};
     tmean=DATAall{j,1}{:,1};
-    pevapm(j) = mean(pet(Ra,tmax,tmin,tmean),'omitnan').*25.4;
+
+    % Compute PET using the custom function
+    PET_values = pet(Ra, tmax, tmin, tmean);
+    pevapm(j) = mean(PET_values, 'omitnan') .* 25.4; % Convert to mm if needed
+
+    %pevapm(j) = mean(pet(Ra,tmax,tmin,tmean),'omitnan').*25.4;
 end
 hfig=figure;
 xaxis=1:1:numel(pevapm);
@@ -291,7 +294,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('(mm)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_PET'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_PET'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Standardized Precipitation - Evapotranspiration Index: SPEI
@@ -323,7 +326,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_SU'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_SU'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Maximum Number of Consecultive of Summer Days: CSU
@@ -350,7 +353,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_CSU'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_CSU'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Tropical Nights: TR
@@ -377,7 +380,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TR'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TR'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Warm Spell Duration Index: WSDI
@@ -411,7 +414,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TXx'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TXx'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Maximum Value of Daily Minimum Temperature: TNx
@@ -437,7 +440,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('({\circ}C)','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TXn'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TXn'));
 print(hfig,fileout,'-dpng','-r600');
 %%%%%%%%%%%%%%%%%%%%%%HUMIDITY INDICES%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -465,7 +468,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('%','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RH'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RH'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Mean of Daily Dew Point Temperature: DP
@@ -492,7 +495,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_DP'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_DP'));
 print(hfig,fileout,'-dpng','-r600');
 
 %%%%%%%%%%%%%%%%%%%%%%PRESSURE INDICES%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -525,7 +528,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('mm','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RR'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RR'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Wet Days: RR1
@@ -553,7 +556,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RR1'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RR1'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Simple Daily Intensity Index: SDII
@@ -582,7 +585,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('mm/wetday','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_SDII'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_SDII'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Maximum Number of Consecutive Wet Days: CWD
@@ -609,7 +612,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_CWD'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_CWD'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Heavy Precipitation Days: RR10
@@ -637,7 +640,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RR10'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RR10'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Very Heavy Precipitation Days: RR20
@@ -665,7 +668,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RR20'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RR20'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Highest 1 Day Precitation Amount: RX1day
@@ -692,7 +695,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('mm','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RX1day'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RX1day'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Highest 5 Day Precitation Amount: RX5day
@@ -720,7 +723,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('Days','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_RX5day'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_RX5day'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Moderate Wet Days: R75p
@@ -763,7 +766,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TG'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TG'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Mean of Daily Minimum Air Temperature: TN
@@ -790,7 +793,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TN'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TN'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Mean of Daily Maximum Air Temperature: TX
@@ -817,7 +820,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_TX'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_TX'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Mean of Diurnal Air Temperature Range: DTR
@@ -845,7 +848,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_DTR'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_DTR'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Intra-Period Extreme Temperature Range: ETR
@@ -873,7 +876,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('{\circ}C','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_ETR'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_ETR'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Mean Absolute Day to Day Difference in DTR: vDTR 
@@ -904,7 +907,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('ms^{-1}','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_FXx'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_FXx'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Days With Daily Average Wind Speed Exceeding 10.8 m/s: FG11
@@ -935,7 +938,7 @@ xlabel('YEAR','fontsize',14);
 ylabel('ms^{-1}','fontsize',14);
 set(gca,'fontsize',14);
 legend('Observed','Trend','FontSize',14,'Orientation','vertical','Location','Best')
-fileout=strcat('figures/',strcat(site,'_FG'));
+fileout=strcat('/Volumes/Mesonet/winter_break/output_data/figures/',strcat(site,'_FG'));
 print(hfig,fileout,'-dpng','-r600');
 
 %Wind Direction
@@ -954,3 +957,5 @@ for j=1:ny
         d1=find(WDIR<=45 | WDIR>315);
         DDnorthm(j)=numel(d1);
 end
+
+disp("FINISHED")
