@@ -91,13 +91,13 @@ def calculate_gdd(data, years, time_index, isD, ieD):
 # Main Processing Function ====================================================
 def main_processing():
     # Configuration
-    site = 'BMNT'
+    site = 'BMTN'
     data_root = '/Volumes/Mesonet/winter_break/CCdata/'
     
     try:
         # Load data
         mesonet = scipy.io.loadmat(os.path.join(data_root, 'BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat'))
-        time_data = pd.DatetimeIndex(mesonet['TimestampCollected'].flatten())
+        time_data = pd.DatetimeIndex(mesonet['TT_dailyMES']['TimestampCollected'].flatten())
         
         # Date range calculations
         date_start = time_data[0] + pd.DateOffset(years=1)

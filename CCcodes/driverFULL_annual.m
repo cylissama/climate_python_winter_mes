@@ -1,14 +1,14 @@
 clear
 format long
 
-site='BMNT';
+site='BMTN';
 
-fileMES1='/Volumes/Mesonet/winter_break/CCdata/BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat';
-
+fileMES1='/BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat';
+%/Volumes/Mesonet/winter_break/CCdata/BMTN/01-Mar-2014_01-Aug-2023_BMTN_daily.mat
 %load Mesonet, Climate Data and Thresholds
 dircli1='/Volumes/Mesonet/winter_break/CCdata/';
 dircli=strcat(strcat(dircli1,site,'/'));
-filethresh=strcat(dircli,strcat(site,"_CLIthresh_daily"));
+filethresh=strcat(dircli,strcat(site,"_CLIthresh_daily.mat"));
 load(filethresh);
 filemes=strcat(dircli1,fileMES1);
 load(filemes);

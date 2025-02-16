@@ -1,0 +1,3 @@
+start_date,2015-03-01 00:00:00
+end_date,2022-07-31 00:00:00
+variables,"['TAIR', 'DWPT', 'TAIRx', 'TAIRn', 'PRCP', 'RELH', 'PRES', 'SM02', 'WDIR', 'WSPD', 'WSMX', 'SRAD']"
