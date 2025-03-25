@@ -25,7 +25,7 @@ if dateS >= sTIME_full
 end
 dateE=datetime(eYf-1,12,31); 
 if dateE <= eTIME_full
-   ieD=find(all(ismember(TIME_full,dateE),2));
+   ieD=find(all(ismember(TIME_`full,dateE),2));
 end
 
 TT=TT_dailyMES(isD:ieD,:);
