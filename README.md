@@ -12,7 +12,7 @@ The scripts calculate various climate thresholds (precipitation and temperature)
 
 ### Python Version
 ```sh
-python CLI_thresh_v5.py
+python genCLI_thresh_v5.py
 ```
 
 ### MATLAB Version
